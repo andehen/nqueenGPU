@@ -4,7 +4,7 @@
 #include <curand.h>
 #include <curand_kernel.h>
 
-#define k 10
+#define k 10 // set problem size 
 
 using namespace std;
 
