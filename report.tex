@@ -1,0 +1,58 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,calc}
+\usepackage{amssymb}
+\usepackage{textcomp}
+\usepackage{hyperref}
+
+\title{Math-454 Parallel Computing and Pthreads \\
+		Solving $n$-queens puzzle on GPU}
+\author{Anders Asheim Hennum}
+\date{June 8th}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Using GPU for scientific computing has become very popular. For many problems, 
+the massive parallelism that GPU offers, can give magnificent speedups compared to 
+normal CPU's. In this paper I have investigated if GPU is usable for solving puzzles. 
+TODO: Rewrite when project is done. Add summarizing result.
+\end{abstract}
+
+\section{Introduction}
+
+The puzzle I will try to solve is the $n$-queens puzzle \cite{nqueen}. It is a simple
+and well documented puzzle. The puzzle is to place $n$ queens on an $n \times n$ chess
+board without any queen attacking another queen. The approach I will use is a state-space
+search with backtracking. This approach relies on random searches with very variable running times.
+By using GPU, we can run multiple searches in parallel and by then, have a greater chance of finding
+a solution faster than on a CPU. 
+
+\section{The Algorithm}
+
+TODO: Write pseudo code for the general algorithm. Explain.
+
+\section{Implementation on GPU}
+
+TODO: How did you implement it on GPU? Differences from general algorithm? Issues?
+Memory, etc.? Random number generation issues?
+
+\section{Results}
+
+TODO: Add some nice graphs and tables with running times of CPU vs GPU.
+
+\section{Conclusion}
+
+TOOD: CPU vs GPU best when solving puzzles with state-space search approach? Advantages, 
+disadvantages? What needs to be done to solve this kind of problems on GPU's?
+
+\begin{thebibliography}{9}
+
+\bibitem{nqueen}
+	\url{http://en.wikipedia.org/wiki/Eight_queens_puzzle}
+
+\end{thebibliography} 
+
+\end{document}
