@@ -79,10 +79,10 @@ __global__ void kernel(int* solution, curandState* globalState)
 		if (D[q] == 0 & N[i][q] == 0){ 		// Row clear and not tried before 
 			N[i][q] = 1;
 			if (checkDiagonals(q,i,S)==1){	// If no attacking queens in diagonal
-				S[i] = q;				  	// it can proceed
+				S[i] = q;					// it can proceed
 				D[q] = 1;
 				i++;
-				if (i==k){ 				  	// Finished!
+				if (i==k){ 					// Finished!
 					break;
 				}
 			}
@@ -94,7 +94,7 @@ __global__ void kernel(int* solution, curandState* globalState)
 			for (j;j<k;j++){				// Reset N
 				N[i][j] = 0;
 			}		
-			i--; 							// Backtrack
+			i--;							// Backtrack
 		}
 	}
 	// For now, just print solution for each thread for debugging
