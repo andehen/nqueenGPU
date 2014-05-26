@@ -30,6 +30,15 @@ __device__ int checkDiagonals(int q,int i, int S[])
 	return 1;
 }
 
+__device__ int checkSolution(int S[]){
+	for (int i=0;i<k;i++){
+		if (S[i]==-1){
+			return 0;
+		}
+	}
+	return 1;
+}
+
 __device__ int sum(int row[], int len)
 // Returns sum of an array 
 {
