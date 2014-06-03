@@ -4,16 +4,16 @@
 #include <curand.h>
 #include <curand_kernel.h>
 
-#define k 15 // set problem size
-#define NUM_BLOCKS 20
-#define NUM_THREADS 2
+#define k 20 // set problem size
+#define NUM_BLOCKS 256
+#define NUM_THREADS 256
 
 using namespace std;
 
 __device__ float generate(curandState* globalState, int ind2)
 // Function to generate random number in thread
 {
-	int ind = threadIdx.x*blockIdx.x;
+	int ind = (blockIdx.x+1)*threadIdx.x;
 	curandState localState = globalState[ind];
 	float rnd = curand_uniform( &localState );
 	globalState[ind] = localState;
@@ -87,7 +87,7 @@ __global__ void kernel(int* S, curandState* globalState)
 
 	int iter = 0;
 	
-	while (iter < 1000){
+	while (iter < 500){
 	
 		q = (generate(globalState, i) * k);	// Generate random number
 		
@@ -149,12 +149,14 @@ int main()
 	kernel<<<NUM_BLOCKS,NUM_THREADS>>> (solution_dev, devStates);
 	cudaMemcpy(solution_host, solution_dev, sizeof(int)*k*NUM_BLOCKS*NUM_THREADS, cudaMemcpyDeviceToHost);
 	
-	for (int l=0;l<NUM_BLOCKS*NUM_THREADS;l++){
-		for (int p=0;p<k;p++){
-			printf("%d ", solution_host[l*k+p]);
-		}
-		printf("\n");
-	}
+//	for (int l=0;l<NUM_BLOCKS*NUM_THREADS;l++){
+//		if (solution_host[l*k+k-1]!=-1){
+//			for (int p=0;p<k;p++){
+//				printf("%d ", solution_host[l*k+p]);
+//			}
+//			printf("\n");
+//		}
+//	}
 
 	// Free memory
 	cudaFree(devStates);
