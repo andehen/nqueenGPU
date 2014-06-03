@@ -5,25 +5,28 @@
 #include <curand_kernel.h>
 
 #define k 15 // set problem size
+#define NUM_BLOCKS 20
+#define NUM_THREADS 2
 
 using namespace std;
 
-__device__ float generate(curandState* globalState, int ind) 
+__device__ float generate(curandState* globalState, int ind2)
 // Function to generate random number in thread
 {
-	//int ind = threadIdx.x;
+	int ind = threadIdx.x*blockIdx.x;
 	curandState localState = globalState[ind];
 	float rnd = curand_uniform( &localState );
 	globalState[ind] = localState;
 	return rnd;
 }
 
-__device__ int checkDiagonals(int q,int i, int S[])
+__device__ int checkDiagonals(int q,int i, int* S)
 // Returns 1 if no queen in diagonal, else 0
 {
+	int I = blockIdx.x*NUM_THREADS*k + threadIdx.x*k;
 	int j = 1;
 	for (j; j<=i; j++){
-		if (S[i-j] == q-j | S[i-j] == q+j){
+		if (S[I+i-j] == q-j | S[I+i-j] == q+j){
 			return 0;
 		} 		
 	}	
@@ -56,11 +59,12 @@ __global__ void setup_kernel (curandState * state, unsigned long seed)
 	curand_init ( seed, id, 0, &state[id] );
 }
 
-__global__ void kernel(int* solution, curandState* globalState)
+__global__ void kernel(int* S, curandState* globalState)
 {
-
+	//__shared__ int S_shared[NUM_BLOCKS*NUM_THREADS*k];
+	int I = blockIdx.x*NUM_THREADS*k + threadIdx.x*k;
 	// Initialize varaibles
-	int S[k]; 				// Holds current solution
+	//int S[k]; 				// Holds current solution
 	int D[k];				// Rows where queens is placed
 	int N[k][k];				// Positions tried at column i
 	
@@ -71,7 +75,7 @@ __global__ void kernel(int* solution, curandState* globalState)
 	
 	// Set to start values
 	for (i; i<k; i++){
-		S[i] = -1;
+		S[I+i] = -1;
 		D[i] = 0;
 		for (j;j<k;j++){
 			N[i][j] = 0;
@@ -83,14 +87,14 @@ __global__ void kernel(int* solution, curandState* globalState)
 
 	int iter = 0;
 	
-	while (iter < 3000){
+	while (iter < 1000){
 	
 		q = (generate(globalState, i) * k);	// Generate random number
 		
 		if (D[q] == 0 & N[i][q] == 0){ 		// Row clear and not tried before 
 			N[i][q] = 1;
 			if (checkDiagonals(q,i,S)==1){	// If no attacking queens in diagonal
-				S[i] = q;			// it can proceed
+				S[I+i] = q;			// it can proceed
 				D[q] = 1;
 				i++;
 				if (i==k){			// Finished!
@@ -99,8 +103,8 @@ __global__ void kernel(int* solution, curandState* globalState)
 			}
 		}
 		if (sum(N[i],k) + sum(D,k) == k){
-			D[S[i-1]] = 0;
-			S[i-1] = -1;
+			D[S[I+i-1]] = 0;
+			S[I+i-1] = -1;
 			j = 0;
 			for (j;j<k;j++){		// Reset N
 				N[i][j] = 0;
@@ -110,13 +114,17 @@ __global__ void kernel(int* solution, curandState* globalState)
 		iter++;
 	}
 	// For now, just print solution for each thread for debugging
-	if (checkSolution(S)==1){
-		printf("Sol from block %d, thread %d: ", blockIdx, threadIdx);
-		for (int l=0;l<k;l++){
-			printf("%d ", S[l]);
-		}
-		printf("\n");
-	}
+//	if (checkSolution(S)==1){
+//		printf("Sol from block %d, thread %d: ", blockIdx, threadIdx);
+//		for (int l=0;l<k;l++){
+//			printf("%d ", S[l]);
+//		}
+//		printf("\n");
+//	}
+
+	//for (int p=0;p<k;p++){
+	//	solution[I+p] = S[p];
+	//}
 }
 
 int main() 
@@ -131,19 +139,26 @@ int main()
 	cudaMalloc ( &devStates, k*sizeof( curandState ) );
 
 	// Initialze seeds
-	setup_kernel <<< 10, 1>>> ( devStates,unsigned(time(NULL)) );
+	setup_kernel <<< NUM_BLOCKS, NUM_THREADS>>> ( devStates,unsigned(time(NULL)) );
 
-	int solution2[k];
-	int* solution3;
+	int solution_host[k*NUM_BLOCKS*NUM_THREADS];
+	int* solution_dev;
 
-	cudaMalloc((void**) &solution3, sizeof(int)*k);
+	cudaMalloc((void**) &solution_dev, sizeof(int)*k*NUM_BLOCKS*NUM_THREADS);
 	 
-	kernel<<<10,1>>> (solution3, devStates);
-	cudaMemcpy(solution2, solution3, sizeof(int)*k, cudaMemcpyDeviceToHost);
+	kernel<<<NUM_BLOCKS,NUM_THREADS>>> (solution_dev, devStates);
+	cudaMemcpy(solution_host, solution_dev, sizeof(int)*k*NUM_BLOCKS*NUM_THREADS, cudaMemcpyDeviceToHost);
 	
+	for (int l=0;l<NUM_BLOCKS*NUM_THREADS;l++){
+		for (int p=0;p<k;p++){
+			printf("%d ", solution_host[l*k+p]);
+		}
+		printf("\n");
+	}
+
 	// Free memory
 	cudaFree(devStates);
-	cudaFree(solution3);
+	cudaFree(solution_dev);
 	
 	cudaDeviceReset(); // Tried to fix memory leakage
 	
