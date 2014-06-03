@@ -4,9 +4,9 @@
 #include <curand.h>
 #include <curand_kernel.h>
 
-#define k 20 // set problem size
-#define NUM_BLOCKS 256
-#define NUM_THREADS 256
+#define k 10 // set problem size
+#define NUM_BLOCKS 4
+#define NUM_THREADS 4
 
 using namespace std;
 
@@ -33,25 +33,27 @@ __device__ int checkDiagonals(int q,int i, int* S)
 	return 1;
 }
 
-__device__ int checkSolution(int S[]){
-	for (int i=0;i<k;i++){
-		if (S[i]==-1){
-			return 0;
-		}
-	}
-	return 1;
-}
-
-__device__ int sum(int row[], int len)
+__device__ int sum(int* row, int len)
 // Returns sum of an array 
 {
+	int I = blockIdx.x*NUM_THREADS*k + threadIdx.x*k;
 	int i = 0;
 	int s = 0;
 	for (i; i<len; i++){
-		s += row[i];
+		s += row[I+i];
 	}
 	return s;
 }
+
+//__device__ int sumN(int* N, int i, int len)
+//{
+//	int I = blockIdx.x*NUM_THREADS*k + threadIdx.x*k;
+//	int s = 0;
+//	for (int j=0; j<len; j++){
+//		s += N[I+i][j];
+//	}
+//	return s;
+//}
 
 __global__ void setup_kernel (curandState * state, unsigned long seed)
 {
@@ -59,14 +61,15 @@ __global__ void setup_kernel (curandState * state, unsigned long seed)
 	curand_init ( seed, id, 0, &state[id] );
 }
 
-__global__ void kernel(int* S, curandState* globalState)
+__global__ void kernel(int* solution, curandState* globalState)
 {
-	//__shared__ int S_shared[NUM_BLOCKS*NUM_THREADS*k];
+
 	int I = blockIdx.x*NUM_THREADS*k + threadIdx.x*k;
 	// Initialize varaibles
 	//int S[k]; 				// Holds current solution
-	int D[k];				// Rows where queens is placed
-	int N[k][k];				// Positions tried at column i
+	__shared__ int S[NUM_BLOCKS*NUM_THREADS*k];
+	__shared__ int D[NUM_BLOCKS*NUM_THREADS*k];				// Rows where queens is placed
+	__shared__ int N[NUM_BLOCKS*NUM_THREADS*k][k];				// Positions tried at column i
 	
 	int i = 0;				
 	int j = 0;
@@ -76,9 +79,9 @@ __global__ void kernel(int* S, curandState* globalState)
 	// Set to start values
 	for (i; i<k; i++){
 		S[I+i] = -1;
-		D[i] = 0;
+		D[I+i] = 0;
 		for (j;j<k;j++){
-			N[i][j] = 0;
+			N[I+i][j] = 0;
 		}
 		j = 0;
 	}
@@ -87,44 +90,36 @@ __global__ void kernel(int* S, curandState* globalState)
 
 	int iter = 0;
 	
-	while (iter < 500){
+	while (iter < 10){
 	
 		q = (generate(globalState, i) * k);	// Generate random number
 		
-		if (D[q] == 0 & N[i][q] == 0){ 		// Row clear and not tried before 
-			N[i][q] = 1;
+		if (D[I+q] == 0 & N[I+i][q] == 0){ 		// Row clear and not tried before
+			N[I+i][q] = 1;
 			if (checkDiagonals(q,i,S)==1){	// If no attacking queens in diagonal
 				S[I+i] = q;			// it can proceed
-				D[q] = 1;
+				D[I+q] = 1;
 				i++;
 				if (i==k){			// Finished!
 					break;
 				}
 			}
 		}
-		if (sum(N[i],k) + sum(D,k) == k){
-			D[S[I+i-1]] = 0;
+		if (sum(N[I+i],k) + sum(D,k) == k){
+			D[I+S[I+i-1]] = 0;
 			S[I+i-1] = -1;
 			j = 0;
 			for (j;j<k;j++){		// Reset N
-				N[i][j] = 0;
+				N[I+i][j] = 0;
 			}		
 			i--;				// Backtrack
 		}
 		iter++;
 	}
-	// For now, just print solution for each thread for debugging
-//	if (checkSolution(S)==1){
-//		printf("Sol from block %d, thread %d: ", blockIdx, threadIdx);
-//		for (int l=0;l<k;l++){
-//			printf("%d ", S[l]);
-//		}
-//		printf("\n");
-//	}
 
-	//for (int p=0;p<k;p++){
-	//	solution[I+p] = S[p];
-	//}
+	for (int p=0;p<k;p++){
+		solution[I+p] = S[I+p];
+	}
 }
 
 int main() 
@@ -149,14 +144,14 @@ int main()
 	kernel<<<NUM_BLOCKS,NUM_THREADS>>> (solution_dev, devStates);
 	cudaMemcpy(solution_host, solution_dev, sizeof(int)*k*NUM_BLOCKS*NUM_THREADS, cudaMemcpyDeviceToHost);
 	
-//	for (int l=0;l<NUM_BLOCKS*NUM_THREADS;l++){
-//		if (solution_host[l*k+k-1]!=-1){
-//			for (int p=0;p<k;p++){
-//				printf("%d ", solution_host[l*k+p]);
-//			}
-//			printf("\n");
-//		}
-//	}
+	for (int l=0;l<NUM_BLOCKS*NUM_THREADS;l++){
+		if (solution_host[l*k+k-1]!=-1){
+			for (int p=0;p<k;p++){
+				printf("%d ", solution_host[l*k+p]);
+			}
+			printf("\n");
+		}
+	}
 
 	// Free memory
 	cudaFree(devStates);
