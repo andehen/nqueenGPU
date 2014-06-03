@@ -4,14 +4,14 @@
 #include <curand.h>
 #include <curand_kernel.h>
 
-#define k 10 // set problem size 
+#define k 15 // set problem size
 
 using namespace std;
 
-__device__ float generate(curandState* globalState, int ind2) 
+__device__ float generate(curandState* globalState, int ind) 
 // Function to generate random number in thread
 {
-	int ind = threadIdx.x;
+	//int ind = threadIdx.x;
 	curandState localState = globalState[ind];
 	float rnd = curand_uniform( &localState );
 	globalState[ind] = localState;
@@ -80,8 +80,10 @@ __global__ void kernel(int* solution, curandState* globalState)
 	}
 
 	i = 0;
+
+	int iter = 0;
 	
-	while (S[k-1] == -1){
+	while (iter < 3000){
 	
 		q = (generate(globalState, i) * k);	// Generate random number
 		
@@ -105,13 +107,16 @@ __global__ void kernel(int* solution, curandState* globalState)
 			}		
 			i--;				// Backtrack
 		}
+		iter++;
 	}
 	// For now, just print solution for each thread for debugging
-	printf("Sol from block %d, thread %d: ", blockIdx, threadIdx);
-	for (int l=0;l<k;l++){
-		printf("%d ", S[l]);
+	if (checkSolution(S)==1){
+		printf("Sol from block %d, thread %d: ", blockIdx, threadIdx);
+		for (int l=0;l<k;l++){
+			printf("%d ", S[l]);
+		}
+		printf("\n");
 	}
-	printf("\n");
 }
 
 int main() 
@@ -126,14 +131,14 @@ int main()
 	cudaMalloc ( &devStates, k*sizeof( curandState ) );
 
 	// Initialze seeds
-	setup_kernel <<< 10, 2 >>> ( devStates,unsigned(time(NULL)) );
+	setup_kernel <<< 10, 1>>> ( devStates,unsigned(time(NULL)) );
 
 	int solution2[k];
 	int* solution3;
 
 	cudaMalloc((void**) &solution3, sizeof(int)*k);
 	 
-	kernel<<<10,2>>> (solution3, devStates);
+	kernel<<<10,1>>> (solution3, devStates);
 	cudaMemcpy(solution2, solution3, sizeof(int)*k, cudaMemcpyDeviceToHost);
 	
 	// Free memory
