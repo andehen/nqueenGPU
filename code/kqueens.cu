@@ -4,9 +4,10 @@
 #include <curand.h>
 #include <curand_kernel.h>
 
-#define k 20 // set problem size
-#define NUM_BLOCKS 256
-#define NUM_THREADS 256
+#define k 50 // set problem size
+#define NUM_BLOCKS 32
+#define NUM_THREADS 512
+#define MAX_ITER 3000
 
 using namespace std;
 
@@ -87,7 +88,7 @@ __global__ void kernel(int* S, curandState* globalState)
 
 	int iter = 0;
 	
-	while (iter < 500){
+	while (iter < MAX_ITER){
 	
 		q = (generate(globalState, i) * k);	// Generate random number
 		
@@ -129,11 +130,11 @@ __global__ void kernel(int* S, curandState* globalState)
 
 int main() 
 {
-	size_t avail;
-	size_t total;
-	cudaMemGetInfo( &avail, &total );
-	size_t used = total - avail;
-	cout << "Device memory used: " << used << endl;
+//	size_t avail;
+//	size_t total;
+//	cudaMemGetInfo( &avail, &total );
+//	size_t used = total - avail;
+//	cout << "Device memory used: " << used << endl;
 
 	curandState* devStates;
 	cudaMalloc ( &devStates, k*sizeof( curandState ) );
@@ -149,20 +150,25 @@ int main()
 	kernel<<<NUM_BLOCKS,NUM_THREADS>>> (solution_dev, devStates);
 	cudaMemcpy(solution_host, solution_dev, sizeof(int)*k*NUM_BLOCKS*NUM_THREADS, cudaMemcpyDeviceToHost);
 	
-//	for (int l=0;l<NUM_BLOCKS*NUM_THREADS;l++){
-//		if (solution_host[l*k+k-1]!=-1){
+	int solution_count = 0;
+	for (int l=0;l<NUM_BLOCKS*NUM_THREADS;l++){
+		if (solution_host[l*k+k-1]!=-1){
 //			for (int p=0;p<k;p++){
 //				printf("%d ", solution_host[l*k+p]);
 //			}
-//			printf("\n");
-//		}
-//	}
+			//printf("\n");
+			solution_count++;
+		}
+	}
+	printf("%d\n", solution_count);
 
 	// Free memory
 	cudaFree(devStates);
 	cudaFree(solution_dev);
 	
 	cudaDeviceReset(); // Tried to fix memory leakage
-	
+
 	return 0;
+
+
 }

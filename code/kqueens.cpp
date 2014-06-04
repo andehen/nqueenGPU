@@ -1,12 +1,21 @@
 #include <time.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <iostream>
 
-void printS( int S[], int k){
+#define NUM_BLOCKS 32
+#define NUM_THREADS 512
+#define K 50
+#define MAX_ITER
+
+using namespace std;
+
+void printS( int S[]){
 	int i = 0;
-	for (i; i<k-1; i++){
-		printf("%d ", S[i]); 
+	for (i; i<K-1; i++){
+		cout << S[i] << " ";
 	}
-	printf("%d \n", S[k-1]);
+	cout << S[K-1] << endl;
 }	
 
 
@@ -29,10 +38,9 @@ int sum(int row[], int len){
 	return s;
 }
 
-int main (){
+void solvePuzzle(int* S, int k){
 	// Initialize varaibles
-	int k = 30;
-	int S[k];
+	//int S[k];
 	int D[k];
 	int N[k][k];
 	
@@ -52,38 +60,18 @@ int main (){
 	}
 
 	// Prepare values and rnd num
-	srand(time(NULL));
 	i = 0;
 	
-//	S[0] = 1;
-//	S[1] = 3;
-//	q = 0;
-//	i = 2;
-//	int t = diagonalsOK(q,i,S);
-//	printf("%d",t);
-
-	//int T[4] = {1,0,1,0};
-	//printf("T: %d\n",sum(T,4)); 
-
+	int max_iter = 3000;
 	// Solve puzzle
-	while (S[k-1] == -1){
-	//	printf("i: %d\n", i);
-	//	printf("S: ");
-	//	printS(S,k);
-	//	printf("D: ");
-	//	printS(D,k);
-	//	printf("N: ");
-	//	printS(N[i],k);
-	//	printf("q: ");
+	for (int iter=0; iter < max_iter; iter++){
 	
 		q = rand() % k;
 	
-	//	printf("%d\n",q);
 		
 		if (D[q] == 0 & N[i][q] == 0){ // Row clear and not tried before 
 			N[i][q] = 1;
 			if (diagonalsOK(q,i,S)==1){
-				//printf("Diagonals ok! Next iteration\n");
 				S[i] = q;
 				D[q] = 1;
 				i++;
@@ -93,7 +81,6 @@ int main (){
 			}
 		}
 		if (sum(N[i],k) + sum(D,k) == k){
-			//printf("Backtrack\n");
 			D[S[i-1]] = 0;
 			S[i-1] = -1;
 			// Set N[i] = 0;
@@ -103,7 +90,20 @@ int main (){
 			}		
 			i--; // Backtrack
 		}
+		iter++;
 	}
-	printf("Terminated!\n");
-	printS(S,k);
+}
+int main(){
+	int solutions[NUM_BLOCKS*NUM_THREADS][K];
+	int num_solutions = NUM_BLOCKS*NUM_THREADS;
+	int solution_count = 0;
+	srand(time(NULL));
+	for (int i = 0; i < num_solutions; i++){
+		solvePuzzle(&(solutions[i][0]), K);
+		if (solutions[i][K-1] !=-1){
+			solution_count++;
+		}
+		//printS(solutions[i]);
+	}
+	cout << solution_count << endl;
 }
