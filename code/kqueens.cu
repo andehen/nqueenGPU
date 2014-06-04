@@ -8,13 +8,12 @@
 #define NUM_BLOCKS 4
 #define NUM_THREADS 4
 
-
 using namespace std;
 
 __device__ float generate(curandState* globalState, int ind2)
 // Function to generate random number in thread
 {
-	int ind = threadIdx.x*blockIdx.x;
+	int ind = (blockIdx.x+1)*threadIdx.x;
 	curandState localState = globalState[ind];
 	float rnd = curand_uniform( &localState );
 	globalState[ind] = localState;
@@ -62,15 +61,15 @@ __global__ void setup_kernel (curandState * state, unsigned long seed)
 	curand_init ( seed, id, 0, &state[id] );
 }
 
-__global__ void kernel(int* S, curandState* globalState)
+__global__ void kernel(int* solution, curandState* globalState)
 {
 
 	int I = blockIdx.x*NUM_THREADS*k + threadIdx.x*k;
 	// Initialize varaibles
 	//int S[k]; 				// Holds current solution
-	//__shared__ int S[NUM_BLOCKS*NUM_THREADS*k];
-	int D[NUM_BLOCKS*NUM_THREADS*k];				// Rows where queens is placed
-	int N[NUM_BLOCKS*NUM_THREADS*k][k];				// Positions tried at column i
+	__shared__ int S[NUM_BLOCKS*NUM_THREADS*k];
+	__shared__ int D[NUM_BLOCKS*NUM_THREADS*k];				// Rows where queens is placed
+	__shared__ int N[NUM_BLOCKS*NUM_THREADS*k][k];				// Positions tried at column i
 	
 	int i = 0;				
 	int j = 0;
@@ -91,7 +90,7 @@ __global__ void kernel(int* S, curandState* globalState)
 
 	int iter = 0;
 	
-	while (iter < 1000){
+	while (iter < 10){
 	
 		q = (generate(globalState, i) * k);	// Generate random number
 		
@@ -118,9 +117,9 @@ __global__ void kernel(int* S, curandState* globalState)
 		iter++;
 	}
 
-	//for (int p=0;p<k;p++){
-	//	solution[I+p] = S[I+p];
-	//}
+	for (int p=0;p<k;p++){
+		solution[I+p] = S[I+p];
+	}
 }
 
 int main() 
@@ -152,7 +151,6 @@ int main()
 			}
 			printf("\n");
 		}
-
 	}
 
 	// Free memory
