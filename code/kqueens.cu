@@ -1,13 +1,14 @@
 #include <stdio.h>
 #include <iostream>
+#include <ctime>
 #include <cuda_runtime.h>
 #include <curand.h>
 #include <curand_kernel.h>
 
-#define k 50 // set problem size
+#define k 110 // set problem size
 #define NUM_BLOCKS 32
 #define NUM_THREADS 512
-#define MAX_ITER 3000
+#define MAX_ITER 2000
 
 using namespace std;
 
@@ -56,7 +57,7 @@ __device__ int sum(int row[], int len)
 
 __global__ void setup_kernel (curandState * state, unsigned long seed)
 {
-	int id = threadIdx.x;
+	int id = (blockIdx.x+1)*threadIdx.x;
 	curand_init ( seed, id, 0, &state[id] );
 }
 
@@ -146,10 +147,16 @@ int main()
 	int* solution_dev;
 
 	cudaMalloc((void**) &solution_dev, sizeof(int)*k*NUM_BLOCKS*NUM_THREADS);
-	 
+
+	clock_t begin = clock();
 	kernel<<<NUM_BLOCKS,NUM_THREADS>>> (solution_dev, devStates);
 	cudaMemcpy(solution_host, solution_dev, sizeof(int)*k*NUM_BLOCKS*NUM_THREADS, cudaMemcpyDeviceToHost);
+	clock_t end = clock();
 	
+	double elapsed_sec = double(end - begin)/CLOCKS_PER_SEC;
+
+	cout << "Time: " << elapsed_sec << endl;
+
 	int solution_count = 0;
 	for (int l=0;l<NUM_BLOCKS*NUM_THREADS;l++){
 		if (solution_host[l*k+k-1]!=-1){

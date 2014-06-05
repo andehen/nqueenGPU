@@ -2,11 +2,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
+#include <ctime>
 
 #define NUM_BLOCKS 32
 #define NUM_THREADS 512
-#define K 50
-#define MAX_ITER
+#define K 110
+#define MAX_ITER 2000
 
 using namespace std;
 
@@ -62,9 +63,10 @@ void solvePuzzle(int* S, int k){
 	// Prepare values and rnd num
 	i = 0;
 	
-	int max_iter = 3000;
+	int iter = 0;
+
 	// Solve puzzle
-	for (int iter=0; iter < max_iter; iter++){
+	while (iter < MAX_ITER){
 	
 		q = rand() % k;
 	
@@ -98,8 +100,15 @@ int main(){
 	int num_solutions = NUM_BLOCKS*NUM_THREADS;
 	int solution_count = 0;
 	srand(time(NULL));
+
+	clock_t begin = clock();
 	for (int i = 0; i < num_solutions; i++){
 		solvePuzzle(&(solutions[i][0]), K);
+	}
+	clock_t end = clock();
+	double elapsed_secs = double(end-begin)/CLOCKS_PER_SEC;
+	cout << "Time: " << elapsed_secs << endl;
+	for (int i = 0; i < num_solutions; i++){
 		if (solutions[i][K-1] !=-1){
 			solution_count++;
 		}
