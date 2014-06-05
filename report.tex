@@ -5,6 +5,8 @@
 \usepackage{textcomp}
 \usepackage{hyperref}
 \usepackage{graphicx}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 
 \title{Math-454 Parallel Computing and Pthreads \\
 		Solving $n$-queens puzzle on GPU}
@@ -26,36 +28,84 @@ TODO: Rewrite when project is done. Add summarizing result.
 
 The puzzle I will try to solve is the $n$-queens puzzle \cite{nqueen}. It is a simple
 and well documented puzzle. The puzzle is to place $n$ queens on an $n \times n$ chess
-board without any queen attacking another queen. The approach I will use is a state-space
-search with backtracking. This approach relies on random searches with very variable running times.
+board without any queen attacking another queen. The approach I will use is a random first search. 
+This approach relies on random searches and has very variable running times.
 By using GPU, we can run multiple searches in parallel and by then, have a greater chance of finding
 a solution faster than running multiple searches on CPU sequentially. 
 
 \section{The Algorithm}
 
-TODO: Write pseudo code for the general algorithm. Explain.
+There are several approaches to solve the $n$-queens puzzle. The method used here
+is based on a random first tree search. I chose this because the method is very general
+and can be applied to a large number of problems. It also very intuitive and easy to implement. 
+
+In short words the algorithm works by placing out a queen 
+randomly in the first column. This becomes the "root" node. It continues with placing
+a queen in the next column and makes sure that the row and diagonal is free and that it has
+not been tried before. It does this for all columns (levels in the tree) until it reaches a dead end or
+finishes by reaching the bottom. If a dead end is reached (no next placements possible) it back tracks to
+a previous column where not all possibilities is tried and continues to search from there. 
 
 \begin{algorithm}[H]
-\caption{Solution search}
-\begin{algorithmic}
-\Function{Objective Function}{$state$,$k$}
-\For {\textbf{each} $row$ \textbf{and} $column$ \textbf{in} $state$}
-    \State diff $+=$ abs(sum($row$ or $col$)$-k$)
-\EndFor
-\For {\textbf{each} $diagonal$}
-    \State $s \gets$ sum($diagonal$)
-    \State diff $+= s-k$ \textbf{if} $s>k$ \textbf{else} 0
-\EndFor \\
-\Return $\exp(-$diff$)$
-\EndFunction
-
+\caption{Solution search for K-queens puzzle}
+\label{alg:solvePuzzle}
+\begin{algorithmic}[1]
+	\State initialize $K, S, N, D, i, q, iter, max\_iter$
+    \While{ ( $iter < max\_iter$ ) } 
+    	\State $q \gets$ rand()*$K$
+    	\If{ $(D[q] == 0 ~ \textrm{and} ~ N[i][q] == 0)$}
+    		\State N[i][q] = 1
+    		\If{ (diagonalsOK($q,i,S$) == 1)}
+    			\State $S[i] = q$
+    			\State $D[q] = 1$
+    			\State i++
+    			\If{($i == K$)}
+    				\State break
+    			\EndIf
+    		\EndIf
+    	\EndIf 
+    \If{((sum($N[i]$) + sum($D$)) == $K$)}
+    	\State $D[S[i-1]] = 0$
+		\State $S[i-1] = -1$
+		\For {\textbf{each} $j$ in $N[i]$}
+			\State $j = 0$
+		\EndFor		
+		\State $i--$
+    \EndIf
+    \State $iter++$
+    \EndWhile  
 \end{algorithmic}
 \end{algorithm}
 
 \section{Implementation on GPU}
 
-TODO: How did you implement it on GPU? Differences from general algorithm? Issues?
-Memory, etc.? Random number generation issues?
+%TODO: How did you implement it on GPU? Differences from general algorithm? Issues?
+%Memory, etc.? Random number generation issues?
+
+To implement the algorithm efficiently on GPU there is three things one need to consider: random
+number generation, memory management and optimal grid size.
+
+\subsection{Random number generation} % (fold)
+\label{sub:random_number_generation}
+The CUDA toolkit has a very nice library \verb|curand| (reference) to generate random numbers. The documentation describes 
+how to obtain highest quality parallel pseudorandom number generation. I general, every experiment is assigned with an unique 
+seed (time) value. Within the experiment all threads is assigned with an unique id number (by thread id and block id) and this 
+is used as sequence number. By this we are guaranteed that all threads will get different sequences with good statistical 
+properties.    
+
+% subsection random_number_generation (end)
+\subsection{Memory management} % (fold)
+\label{sub:memory_management}
+
+This types of algorithms is heavily dependent on reads and writes from memory. Thus it is crucial 
+to determine the bottlenecks in memory access. 
+
+% subsection memory_management (end)
+
+\subsection{Optimal grid size} % (fold)
+\label{sub:optimal_grid_size}
+
+% subsection optimal_grid_size (end)
 
 \section{Results}
 
