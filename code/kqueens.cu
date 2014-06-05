@@ -12,15 +12,15 @@
 
 using namespace std;
 
-__device__ float generate(curandState* globalState, int ind2)
-// Function to generate random number in thread
-{
-	int ind = (blockIdx.x+1)*threadIdx.x;
-	curandState localState = globalState[ind];
-	float rnd = curand_uniform( &localState );
-	globalState[ind] = localState;
-	return rnd;
-}
+//__device__ float generate(curandState* globalState, int ind)
+//// Function to generate random number in thread
+//{
+//	//int ind = (blockIdx.x+1)*threadIdx.x;
+//	curandState localState = globalState[ind];
+//	float rnd = curand_uniform( &localState );
+//	globalState[ind] = localState;
+//	return rnd;
+//}
 
 __device__ int checkDiagonals(int q,int i, int* S)
 // Returns 1 if no queen in diagonal, else 0
@@ -57,7 +57,7 @@ __device__ int sum(int row[], int len)
 
 __global__ void setup_kernel (curandState * state, unsigned long seed)
 {
-	int id = (blockIdx.x+1)*threadIdx.x;
+	int id = blockIdx.x*NUM_BLOCKS + threadIdx.x;
 	curand_init ( seed, id, 0, &state[id] );
 }
 
@@ -65,6 +65,7 @@ __global__ void kernel(int* S, curandState* globalState)
 {
 	//__shared__ int S_shared[NUM_BLOCKS*NUM_THREADS*k];
 	int I = blockIdx.x*NUM_THREADS*k + threadIdx.x*k;
+	int ind = blockIdx.x*NUM_BLOCKS + threadIdx.x;
 	// Initialize varaibles
 	//int S[k]; 				// Holds current solution
 	int D[k];				// Rows where queens is placed
@@ -88,10 +89,14 @@ __global__ void kernel(int* S, curandState* globalState)
 	i = 0;
 
 	int iter = 0;
+
+	// Get local state
+	curandState localState = globalState[ind];
 	
 	while (iter < MAX_ITER){
 	
-		q = (generate(globalState, i) * k);	// Generate random number
+		//q = (generate(globalState, ind) * k);	// Generate random number
+		q = curand_uniform( &localState ) * k;
 		
 		if (D[q] == 0 & N[i][q] == 0){ 		// Row clear and not tried before 
 			N[i][q] = 1;
