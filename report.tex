@@ -4,6 +4,7 @@
 \usepackage{amssymb}
 \usepackage{textcomp}
 \usepackage{hyperref}
+\usepackage{graphicx}
 
 \title{Math-454 Parallel Computing and Pthreads \\
 		Solving $n$-queens puzzle on GPU}
@@ -28,11 +29,28 @@ and well documented puzzle. The puzzle is to place $n$ queens on an $n \times n$
 board without any queen attacking another queen. The approach I will use is a state-space
 search with backtracking. This approach relies on random searches with very variable running times.
 By using GPU, we can run multiple searches in parallel and by then, have a greater chance of finding
-a solution faster than on a CPU. 
+a solution faster than running multiple searches on CPU sequentially. 
 
 \section{The Algorithm}
 
 TODO: Write pseudo code for the general algorithm. Explain.
+
+\begin{algorithm}[H]
+\caption{Solution search}
+\begin{algorithmic}
+\Function{Objective Function}{$state$,$k$}
+\For {\textbf{each} $row$ \textbf{and} $column$ \textbf{in} $state$}
+    \State diff $+=$ abs(sum($row$ or $col$)$-k$)
+\EndFor
+\For {\textbf{each} $diagonal$}
+    \State $s \gets$ sum($diagonal$)
+    \State diff $+= s-k$ \textbf{if} $s>k$ \textbf{else} 0
+\EndFor \\
+\Return $\exp(-$diff$)$
+\EndFunction
+
+\end{algorithmic}
+\end{algorithm}
 
 \section{Implementation on GPU}
 
