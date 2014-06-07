@@ -4,10 +4,10 @@
 #include <iostream>
 #include <ctime>
 
-#define NUM_BLOCKS 32
-#define NUM_THREADS 512
-#define K 110
-#define MAX_ITER 2000
+#define NUM_BLOCKS 16
+#define NUM_THREADS 16
+#define K 80
+#define MAX_ITER 4000
 
 using namespace std;
 
@@ -106,8 +106,8 @@ int main(){
 		solvePuzzle(&(solutions[i][0]), K);
 	}
 	clock_t end = clock();
-	double elapsed_secs = double(end-begin)/CLOCKS_PER_SEC;
-	cout << "Time: " << elapsed_secs << endl;
+	double elapsed_secs = double(end-begin)/(CLOCKS_PER_SEC/1000);
+	cout << elapsed_secs << endl;
 	for (int i = 0; i < num_solutions; i++){
 		if (solutions[i][K-1] !=-1){
 			solution_count++;

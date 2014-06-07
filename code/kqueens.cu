@@ -5,10 +5,10 @@
 #include <curand.h>
 #include <curand_kernel.h>
 
-#define k 110 // set problem size
-#define NUM_BLOCKS 32
-#define NUM_THREADS 512
-#define MAX_ITER 2000
+#define NUM_BLOCKS 16
+#define NUM_THREADS 16
+#define k 80
+#define MAX_ITER 4000
 
 using namespace std;
 
@@ -158,9 +158,9 @@ int main()
 	cudaMemcpy(solution_host, solution_dev, sizeof(int)*k*NUM_BLOCKS*NUM_THREADS, cudaMemcpyDeviceToHost);
 	clock_t end = clock();
 	
-	double elapsed_sec = double(end - begin)/CLOCKS_PER_SEC;
+	double elapsed_sec = double(end - begin)/(CLOCKS_PER_SEC/1000);
 
-	cout << "Time: " << elapsed_sec << endl;
+	cout << elapsed_sec << endl;
 
 	int solution_count = 0;
 	for (int l=0;l<NUM_BLOCKS*NUM_THREADS;l++){
@@ -172,7 +172,7 @@ int main()
 			solution_count++;
 		}
 	}
-	printf("%d\n", solution_count);
+	cout << solution_count << endl;
 
 	// Free memory
 	cudaFree(devStates);
