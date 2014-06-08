@@ -133,7 +133,9 @@ obtained.
 
 \section{Results and discussion}
 Benchmarking was done on a Nvidia Quadro K2000 GPU card and a 2.5 GHz CPU. The results is based on
-averages of five runs.
+averages of five runs. To run multiple setups efficiently a python script was used to compile the source, run the program  and save
+the output.
+
 Figure (\ref{fig:time}) shows execution time as a function of searches performed. We can observe that we have a linear 
 relationship between execution time and number of searches. The speedup seems to be more or less constant. Table (\ref{tab:results}) shows 
 results for various setups. The GPU and the CPU finds on average about the same amount of solutions indicating that their
