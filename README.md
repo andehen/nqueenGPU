@@ -8,11 +8,6 @@ a state-space search approach.
 # Project finished
 Project is finished. See the report for results and concusion.
 
-On average I obtaind a speedup of ~ 7 compared to a single CPU. This can 
-possibly be improved by making use of share memory rather than global
-memory. 
-
-
 ### Pre-release 26th May
 Here is a short status on the project. Report is far from finished. I have
 focused most on the coding. It works, but I have some issues to figure out,
