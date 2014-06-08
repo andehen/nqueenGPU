@@ -5,11 +5,11 @@ This is a project in the course **Math-454 Parallel computing and POSIX Threads*
 at EPFL. The aim of the project is to solve the n-queen puzzle on GPU by 
 a state-space search approach. 
 
-### Finished
+# Project finished
 Project is finished. See the report for results and concusion.
 
-On average i obtaind a speedup of ~ 7 compared to a single CPU. This can 
-possibly be imporved by making use of share memory rather than global
+On average I obtaind a speedup of ~ 7 compared to a single CPU. This can 
+possibly be improved by making use of share memory rather than global
 memory. 
 
 
