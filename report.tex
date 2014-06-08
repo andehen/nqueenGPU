@@ -220,24 +220,24 @@ of problems that can be solved by this approach I think it is potential for furt
 \appendix
 \section{Appendix}
 \begin{algorithm}[H]
-\caption{Solution search for K-queens puzzle}
+\caption{Solution search for $n$-queens puzzle}
 \label{alg:solvePuzzle}
 \begin{algorithmic}[1]
-    \State $initialize$ K, S, N, D, i, q, iter, max\_iter
+    \State $initialize$ n, S, N, D, i, q, iter, max\_iter
     \While{ ( iter $<$ max\_iter ) } 
-        \State q $\gets$ $rand()$*K
+        \State q $\gets$ $rand()$*n
         \If{ (D[q] == 0 and N[i][q] == 0)}  
             \State N[i][q] = 1 
-            \If{ (diagonalsOK(q,i,S) == 1)}
+            \If{ (diagonalsOn(q,i,S) == 1)}
                 \State S[i] = q
                 \State D[q] = 1
                 \State i++
-                \If{(i == K)}
-                    \State break
+                \If{(i == n)}
+                    \State brean
                 \EndIf
             \EndIf
         \EndIf 
-    \If{(($sum$(N[i]) + $sum$(D)) == K)}
+    \If{(($sum$(N[i]) + $sum$(D)) == n)}
         \State D[S[i-1]] = 0
         \State S[i-1] = -1
         \For {\textbf{each} j \textbf{in} N[i]}
@@ -251,10 +251,10 @@ of problems that can be solved by this approach I think it is potential for furt
 \end{algorithm}
 Variable description:
 \begin{enumerate}
-    \item [K:] (Int) Board size
-    \item [S:] (Int[K]) 1D array where S[i] = j means that there is a queen at position i,j. 
-    \item [N:] (Int[K][K]) 2D array that holds the positions tried at each column. Values are 0 (not tried) and 1 (tried).
-    \item [D:] (Int[K]) D[i] == 0 means that row i is free, 1 means taken.
+    \item [n:] (Int) Board size
+    \item [S:] (Int[n]) 1D array where S[i] = j means that there is a queen at position i,j. 
+    \item [N:] (Int[n][n]) 2D array that holds the positions tried at each column. Values are 0 (not tried) and 1 (tried).
+    \item [D:] (Int[n]) D[i] == 0 means that row i is free, 1 means tanen.
     \item [i:] (Int) current column 
     \item [q:] (Int) Random number. The current position being tried.
     \item [iter:] (Int) Iteration counter
@@ -262,19 +262,19 @@ Variable description:
 \end{enumerate}
 Line comments:
 \begin{enumerate}
-    \item [4:] Check if row is free and position not tried before.
-    \item [5:] Mark position as "tried" i.e change from 0 to 1.
-    \item [6:] Check if diagonals are free and proceed.
+    \item [4:] Checn if row is free and position not tried before.
+    \item [5:] Marn position as "tried" i.e change from 0 to 1.
+    \item [6:] Checn if diagonals are free and proceed.
     \item [7:] Add new queen q to S, the solution array.
     \item [8:] Set row as "used" i.e change from 0 to 1 in D[q].
     \item [9:] Increment column identifier.
-    \item [10:] Check if it is finished.
-    \item [15:] If this sum is equal to K then all positions is tried and 
+    \item [10:] Checn if it is finished.
+    \item [15:] If this sum is equal to n then all positions is tried and 
                 no new placement is possible. A dead end is reached.
     \item [16:] Set row of last queen as free again
     \item [17:] Remove queen from solution, i.e set to -1
     \item [18,19:] Reinitialize positions tried for current column. 
-    \item [21:] Decrement column identifier. Backtracking.
+    \item [21:] Decrement column identifier. Bacntracning.
     \item [23:] Increment iteration counter.
 \end{enumerate}
 
