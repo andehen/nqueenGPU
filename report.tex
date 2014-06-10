@@ -134,7 +134,7 @@ obtained.
 
 \section{Results and discussion}
 Benchmarking was done on a Nvidia Quadro K2000 GPU card and a 2.5 GHz CPU. The results is based on
-averages of five runs. To run multiple setups efficiently a python script was used to compile the source, run the program  and save
+averages of five runs and maximum number of iterations per search was set to 2000. To run multiple setups efficiently a python script was used to compile the source, run the program  and save
 the output.
 
 Figure (\ref{fig:time}) shows execution time as a function of searches performed. We can observe that we have a linear 
@@ -146,8 +146,8 @@ problem sizes. This indicates that this grid size is optimal for this problem on
 We also see that we have higher speedup at a problem size of $n = 40$ than $n = 100$. This is probably due to the 
 memory access pattern of the GPU. It suffers more with high memory latency on larger problems. 
 
-\begin{table}[ht]
-\caption{Benchmarking results. Values are averages of five runs.}
+\begin{table}[ht] 
+\caption{Benchmarking results. Values are averages of five runs and max iterations per search was set to 2000.}
 \label{tab:results}
 \vspace{0.5cm}
 \centering
