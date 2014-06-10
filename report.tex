@@ -21,7 +21,7 @@
 This paper is about using GPU to find solutions to the $n$-queens puzzle. The puzzle was
 solved by exploring the solution tree with random first search. This is a general constraint
 satisfaction algorithm and can be applied to large number of problems. The general idea with using GPU to
-this problems is to run multiple searches in parallel and thus find solutions faster. Benchmarking shows that compared to a CPU performing
+such problems was to run multiple searches in parallel and thus find solutions faster. Benchmarking shows that compared to a CPU performing
 the same number of searches sequentially, the GPU reduces the execution time by $\sim$ 7.
 
 % Using GPU for scientific computing has become very popular. For many problems, 
@@ -43,7 +43,7 @@ the the tree of all partly and full solutions is explored until a solution is fo
 This approach relies on random searches and has very variable running times.
 By using GPU, we can run multiple searches in parallel and by then, have a greater chance of finding
 solutions faster than running multiple searches on CPU sequentially. In this paper the same algorithm for solving the 
-puzzle has been implemented on CPU and GPU and performance has been compared. All source code and benchmarking code and results
+puzzle has been implemented on CPU and GPU and performance has been compared. All source code and results
 is available on Github \cite{github}.
 
 \section{Implementation}
