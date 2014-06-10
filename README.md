@@ -5,20 +5,13 @@ This is a project in the course **Math-454 Parallel computing and POSIX Threads*
 at EPFL. The aim of the project is to solve the n-queen puzzle on GPU by 
 a state-space search approach. 
 
-# Project finished
-Project is finished. See the report for results and concusion.
+### 8th June: Project finished
+See report for results and concusion. 
 
-### Pre-release 26th May
-Here is a short status on the project. Report is far from finished. I have
-focused most on the coding. It works, but I have some issues to figure out,
-before I can obtain some good results. 
+**Abstratct**
 
-#### Issues
- - GPU device hangs when n > ca 50 
- - Memory leakage?
- - Threads in same block tend to generate same (not random) numbers
-
-#### Todo
-  - Find a way to terminate threads when one thread has found solution
-  - Better memory management on GPU?
-  - Find a better way to generate random numbers on GPU. 
+*This paper is about using GPU to find solutions to the $n$-queens puzzle. The puzzle was
+solved by exploring the solution tree with random first search. This is a general constraint
+satisfaction algorithm and can be applied to large number of problems. The general idea with using GPU to
+this problems is to run multiple searches in parallel and thus find solutions faster. Benchmarking shows that compared to a CPU performing
+the same number of searches sequentially, the GPU reduces the execution time by $\sim$ 7.*
