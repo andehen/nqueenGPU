@@ -40,7 +40,7 @@ speedUpTable <- function(k,n){
 					SpeedUp <- Time.y/Time.x 
 		})
 	results.merged[c("K.x","Searches","NUM_BLOCKS.x","NUM_THREADS.x",
-							"Time.x","Time.y","Solutions.x","Solutions.y","SpeedUp")]
+			"Time.x","Time.y","Solutions.x","Solutions.y","SpeedUp")]
 }
 
 # Read in results
@@ -52,6 +52,9 @@ results <- within(results,{
 		Searches <- NUM_BLOCKS*NUM_THREADS
 	})
 
+# Generate plot
+TimePlot(40)
+
 # Create data frame with results and speedup
 sptable_list <- list(speedUpTable(40,16),speedUpTable(40,32),speedUpTable(40,64),
 	speedUpTable(100,16),speedUpTable(100,64))
@@ -59,5 +62,8 @@ sptable_list <- list(speedUpTable(40,16),speedUpTable(40,32),speedUpTable(40,64)
 # Merge tables to one
 merged_sptables <- Reduce(function(x,y) merge(x,y,all=TRUE),sptable_list)
 
+# Print table
+merged_sptables
+
 # Print in latex format
-print(xtable(merged_sptables),include.rownames=FALSE)
+#print(xtable(merged_sptables),include.rownames=FALSE)
