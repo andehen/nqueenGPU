@@ -19,7 +19,6 @@ void printS( int S[]){
 	cout << S[K-1] << endl;
 }	
 
-
 int diagonalsOK(int q,int i, int S[]){
 	int j = 1;
 	for (j; j<=i; j++){
@@ -41,7 +40,6 @@ int sum(int row[], int len){
 
 void solvePuzzle(int* S, int k){
 	// Initialize varaibles
-	//int S[k];
 	int D[k];
 	int N[k][k];
 	
@@ -112,7 +110,6 @@ int main(){
 		if (solutions[i][K-1] !=-1){
 			solution_count++;
 		}
-		//printS(solutions[i]);
 	}
 	cout << solution_count << endl;
 }
