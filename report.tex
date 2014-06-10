@@ -188,7 +188,7 @@ $n$ & Searches & Blocks & Threads/block & Time GPU [ms] & Time CPU [ms] & Soluti
 
 \begin{figure}[H]
      \begin{center}
-         \includegraphics[width=10cm]{figures/time.pdf}
+         \includegraphics[width=9cm]{figures/time2.pdf}
      \end{center}
      \caption{Number of searches performed vs. execution time with a board size $n = 40$.}
      \label{fig:time}
@@ -236,7 +236,7 @@ of problems that can be solved by this approach I think it is potential for furt
                 \State D[q] = 1
                 \State i++
                 \If{(i == n)}
-                    \State brean
+                    \State break
                 \EndIf
             \EndIf
         \EndIf 
@@ -257,7 +257,7 @@ Variable description:
     \item [n:] (Int) Board size
     \item [S:] (Int[n]) 1D array where S[i] = j means that there is a queen at position i,j. 
     \item [N:] (Int[n][n]) 2D array that holds the positions tried at each column. Values are 0 (not tried) and 1 (tried).
-    \item [D:] (Int[n]) D[i] == 0 means that row i is free, 1 means tanen.
+    \item [D:] (Int[n]) D[i] == 0 means that row i is free, 1 means taken.
     \item [i:] (Int) current column 
     \item [q:] (Int) Random number. The current position being tried.
     \item [iter:] (Int) Iteration counter
@@ -265,19 +265,19 @@ Variable description:
 \end{enumerate}
 Line comments:
 \begin{enumerate}
-    \item [4:] Checn if row is free and position not tried before.
-    \item [5:] Marn position as "tried" i.e change from 0 to 1.
-    \item [6:] Checn if diagonals are free and proceed.
+    \item [4:] Check if row is free and position not tried before.
+    \item [5:] Mark position as "tried" i.e change from 0 to 1.
+    \item [6:] Check if diagonals are free and proceed.
     \item [7:] Add new queen q to S, the solution array.
     \item [8:] Set row as "used" i.e change from 0 to 1 in D[q].
     \item [9:] Increment column identifier.
-    \item [10:] Checn if it is finished.
+    \item [10:] Check if it is finished.
     \item [15:] If this sum is equal to n then all positions is tried and 
                 no new placement is possible. A dead end is reached.
     \item [16:] Set row of last queen as free again
     \item [17:] Remove queen from solution, i.e set to -1
     \item [18,19:] Reinitialize positions tried for current column. 
-    \item [21:] Decrement column identifier. Bacntracning.
+    \item [21:] Decrement column identifier. Backtracking.
     \item [23:] Increment iteration counter.
 \end{enumerate}
 
