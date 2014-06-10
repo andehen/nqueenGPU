@@ -11,15 +11,6 @@
 
 using namespace std;
 
-void printS( int S[]){
-	int i = 0;
-	for (i; i<K-1; i++){
-		cout << S[i] << " ";
-	}
-	cout << S[K-1] << endl;
-}	
-
-
 int diagonalsOK(int q,int i, int S[]){
 	int j = 1;
 	for (j; j<=i; j++){
@@ -40,8 +31,6 @@ int sum(int row[], int len){
 }
 
 void solvePuzzle(int* S, int k){
-	// Initialize varaibles
-	//int S[k];
 	int D[k];
 	int N[k][k];
 	
@@ -50,7 +39,6 @@ void solvePuzzle(int* S, int k){
 
 	int q; 
 	
-	// Set to start values
 	for (i; i<k; i++){
 		S[i] = -1;
 		D[i] = 0;
@@ -60,24 +48,21 @@ void solvePuzzle(int* S, int k){
 		j = 0;
 	}
 
-	// Prepare values and rnd num
 	i = 0;
 	
 	int iter = 0;
 
-	// Solve puzzle
 	while (iter < MAX_ITER){
 	
 		q = rand() % k;
-	
 		
-		if (D[q] == 0 & N[i][q] == 0){ // Row clear and not tried before 
+		if (D[q] == 0 & N[i][q] == 0){  
 			N[i][q] = 1;
 			if (diagonalsOK(q,i,S)==1){
 				S[i] = q;
 				D[q] = 1;
 				i++;
-				if (i==k){ // Finished!
+				if (i==k){
 					break;
 				}
 			}
@@ -85,12 +70,11 @@ void solvePuzzle(int* S, int k){
 		if (sum(N[i],k) + sum(D,k) == k){
 			D[S[i-1]] = 0;
 			S[i-1] = -1;
-			// Set N[i] = 0;
 			j = 0;
 			for (j;j<k;j++){
 				N[i][j] = 0;
 			}		
-			i--; // Backtrack
+			i--; 
 		}
 		iter++;
 	}
@@ -112,7 +96,6 @@ int main(){
 		if (solutions[i][K-1] !=-1){
 			solution_count++;
 		}
-		//printS(solutions[i]);
 	}
 	cout << solution_count << endl;
 }
